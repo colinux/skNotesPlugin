@@ -90,6 +90,24 @@ class skNotes
    */
   public function add($text)
   {
+    if ($text instanceof sfOutputEscaperArrayDecorator) {
+      $text = $text->getRawValue();
+    }
+
+    if (is_array($text)) {
+      list($text, $replacements) = $text;
+    }
+
+    if (substr($text, 0, 5) == 'i18n:' && sfContext::hasInstance()) {
+      if (!isset($replacements)) {
+        $replacements = array();
+      }
+
+      $text = substr($text, 5);
+
+      $text = sfContext::getInstance()->getI18N()->__($text, $replacements);
+    }
+
     $this->notes[] = new skNotesItem($text, $this->index);
     $index = $this->index++;
 
